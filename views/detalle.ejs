@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle de <%= nombre %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <a href="/productos" class="nav-link">📦 Stock</a>
+      <a href="/movimientos" class="nav-link">📊 Movimientos</a>
+
+      <a href="/ingresos/ingreso-rapido" class="nav-link nav-link-primary">
+        ⚡ Ingreso rápido
+      </a>
+
+      <a href="/egresos/rapido" class="nav-link nav-link-danger">
+        🚚 Egreso rápido
+      </a>
+
+      <a href="/productos/nuevo" class="nav-link">
+        ➕ Ingresar stock
+      </a>
+    </nav>
+
+    <!-- TÍTULO -->
+    <h1 class="page-title">
+      Detalle: <span class="product-name"><%= nombre %></span>
+    </h1>
+
+    <!-- ==========================
+     STOCK MÍNIMO
+========================== -->
+<div class="stock-min-card">
+
+  <div class="stock-min-header">
+    <span class="stock-min-icon">🔴</span>
+    <h2 class="stock-min-title">Stock mínimo</h2>
+  </div>
+
+  <form
+    action="/productos/<%= nombre %>/limite"
+    method="POST"
+    class="stock-min-form"
+  >
+    <div class="stock-min-field">
+      <label class="stock-min-label">
+        Cantidad mínima permitida
+      </label>
+
+      <input
+        type="number"
+        name="stock_minimo"
+        min="0"
+        value="<%= stock_minimo %>"
+        required
+        class="stock-min-input"
+      >
+    </div>
+
+    <button type="submit" class="btn-secondary stock-min-btn">
+      Guardar
+    </button>
+  </form>
+
+  <p class="stock-min-help">
+    Cuando el stock total sea igual o menor a este valor, el producto se marcará
+    <strong>en rojo</strong> en el listado.
+  </p>
+
+</div>
+
+    <!-- TABLA -->
+    <table class="detail-table">
+
+      <thead>
+        <tr>
+          <th>Cantidad</th>
+          <th>Elaboración</th>
+          <th>Ingreso</th>
+          <th>Vencimiento</th>
+          <th>Días a vencer</th>
+          <th>Remito</th>
+          <th>Fecha corta</th>
+          <th>Retirar</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <% const lotesConStock = lotes.filter(l => l.stock_actual > 0); %>
+
+        <% if (lotesConStock.length === 0) { %>
+          <tr>
+            <td colspan="8" class="empty-state">
+              No hay lotes con stock disponible para este producto
+            </td>
+          </tr>
+        <% } else { %>
+
+          <% lotesConStock.forEach(l => { %>
+            <tr class="detail-row <%= l.fechaCorta ? 'row-fecha-corta' : '' %>">
+
+              <td class="detail-stock">
+                <%= l.stock_actual %>
+              </td>
+
+              <!-- ELABORACIÓN -->
+              <td>
+                <% if (l.fecha_elaboracion) { %>
+                  <%= l.fecha_elaboracion.toISOString().split('T')[0] %>
+                <% } else { %>
+                  —
+                <% } %>
+              </td>
+
+              <!-- INGRESO -->
+              <td>
+                <%= l.fecha_ingreso.toISOString().split('T')[0] %>
+              </td>
+
+              <!-- VENCIMIENTO -->
+              <td>
+                <% if (l.vencimiento) { %>
+                  <%= l.vencimiento.toISOString().split('T')[0] %>
+                <% } else { %>
+                  —
+                <% } %>
+              </td>
+
+              <!-- DÍAS A VENCER -->
+              <td class="detail-dias <%= (l.diasRestantes !== null && l.diasRestantes <= 3) ? 'vencimiento-critico' : '' %>">
+                <% if (l.diasRestantes !== null) { %>
+                  <%= l.diasRestantes %>
+                <% } else { %>
+                  —
+                <% } %>
+              </td>
+
+              <td>
+                <%= l.numero_remito %>
+              </td>
+
+              <!-- FECHA CORTA -->
+              <td class="detail-fecha-corta">
+                <%= l.fechaCorta ? 'SÍ' : 'NO' %>
+              </td>
+
+              <!-- RETIRO -->
+              <td class="detail-retiro">
+                <form
+                  action="/productos/retirar/<%= l.id %>"
+                  method="POST"
+                  class="retiro-form"
+                >
+
+                  <input
+                    type="number"
+                    name="cantidadRetirar"
+                    min="1"
+                    max="<%= l.stock_actual %>"
+                    required
+                    class="retiro-input"
+                  >
+
+                  <select name="motivoRetiro" required class="retiro-select">
+                    <option value="">Motivo</option>
+                    <option value="decomiso">Decomiso</option>
+                    <option value="consumo_personal">Consumo del personal</option>
+                    <option value="muestra_gratis">Muestra gratis</option>
+                    <option value="no_apto_venta">No apto venta</option>
+                    <option value="moho">Moho</option>
+                    <option value="fecha_corta">Fecha corta</option>
+                    <option value="conversion">Conversión</option>
+                    <option value="devolucion">Devolución</option>
+                    <option value="venta">Venta</option>
+                  </select>
+
+                  <textarea
+                    name="comentario"
+                    placeholder="Comentario (opcional)"
+                    class="retiro-comentario retiro-comentario-box"
+                    rows="2"
+                  ></textarea>
+
+                  <button type="submit" class="btn-danger">
+                    ✔
+                  </button>
+
+                </form>
+              </td>
+
+            </tr>
+          <% }) %>
+
+        <% } %>
+
+      </tbody>
+
+    </table>
+
+    <div class="actions">
+      <a href="/productos" class="btn-secondary">
+        ⬅ Volver al listado
+      </a>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ingreso rápido</title>
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- NAVBAR (MISMO QUE LISTADO) -->
+    <nav class="navbar">
+      <a href="/productos" class="nav-link">📦 Stock</a>
+      <a href="/movimientos" class="nav-link">📊 Movimientos</a>
+
+      <a href="/ingresos/ingreso-rapido" class="nav-link nav-link-primary">
+        ⚡ Ingreso rápido
+      </a>
+
+      <a href="/egresos/rapido" class="nav-link nav-link-danger">
+        🚚 Egreso rápido
+      </a>
+
+      <a href="/productos/nuevo" class="nav-link">
+        ➕ Ingresar stock
+      </a>
+    </nav>
+
+    <h1 class="page-title">Ingreso rápido de productos</h1>
+
+    <!-- ==========================
+         DATOS DEL LOTE
+    ========================== -->
+    <div class="egreso-card">
+      <h3 class="egreso-subtitle">Datos del lote</h3>
+
+      <div class="form-group">
+        <label class="form-label">Remito</label>
+        <input type="text" id="remito" class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Fecha elaboración</label>
+        <input type="date" id="fechaElaboracion" class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Fecha vencimiento</label>
+        <input type="date" id="fechaVencimiento" class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Fecha ingreso</label>
+        <input type="date" id="fechaIngreso" class="form-input" readonly>
+      </div>
+    </div>
+
+    <!-- ==========================
+         SCANNER
+    ========================== -->
+    <input
+      type="text"
+      id="scanner"
+      class="egreso-scanner"
+      autocomplete="off"
+      autofocus
+    >
+
+    <!-- ==========================
+         PRODUCTOS ESCANEADOS
+    ========================== -->
+    <div class="egreso-card">
+      <h3 class="egreso-subtitle">Productos escaneados</h3>
+
+      <table class="egreso-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Cantidad</th>
+          </tr>
+        </thead>
+        <tbody id="tablaProductos">
+          <tr>
+            <td colspan="3" class="egreso-empty">Escaneá productos...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==========================
+         ACCIONES
+    ========================== -->
+    <div class="egreso-actions">
+      <button id="confirmar" class="btn btn-egreso">Confirmar lote</button>
+      <button id="limpiar" class="btn btn-secondary">Limpiar</button>
+    </div>
+
+  </div>
+
+  <script>
+    // ==========================
+    // MAPEO DE PREFIJOS (FRONTEND)
+    // ==========================
+    const MAPEO_CODIGOS = [
+      { prefijo: '070', nombre: 'KANAWA - FRUTAL', categoria: 'Heladera' },
+      { prefijo: '890', nombre: 'AGUA SMART 500 ml', categoria: 'Heladera' }
+    ];
+  
+    function identificarProductoPorCodigo(codigo) {
+      return MAPEO_CODIGOS.find(p => codigo.startsWith(p.prefijo)) || null;
+    }
+  
+    // ==========================
+    // ESTADO DEL LOTE
+    // ==========================
+    const loteActivo = {
+      remito: null,
+      fecha_elaboracion: null,
+      fecha_vencimiento: null,
+      fecha_ingreso: null,
+      items: {}
+    };
+  
+    const hoy = new Date().toISOString().slice(0, 10);
+    document.getElementById('fechaIngreso').value = hoy;
+    loteActivo.fecha_ingreso = hoy;
+  
+    const scannerInput = document.getElementById('scanner');
+    const tabla = document.getElementById('tablaProductos');
+  
+    document.querySelectorAll('input:not(#scanner)').forEach(input => {
+      input.addEventListener('focus', () => {
+        scannerInput.dataset.locked = 'true';
+      });
+  
+      input.addEventListener('blur', () => {
+        scannerInput.dataset.locked = 'false';
+        scannerInput.focus();
+      });
+    });
+  
+    scannerInput.focus();
+  
+    scannerInput.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== 'Tab') return;
+  
+      e.preventDefault();
+  
+      const codigo = scannerInput.value.trim();
+      scannerInput.value = '';
+      if (!codigo) return;
+  
+      const remito = document.getElementById('remito').value.trim();
+      const fechaElab = document.getElementById('fechaElaboracion').value;
+      const fechaVenc = document.getElementById('fechaVencimiento').value;
+  
+      if (!remito || !fechaElab || !fechaVenc) {
+        alert('Completá remito y fechas antes de escanear');
+        return;
+      }
+  
+      loteActivo.remito = remito;
+      loteActivo.fecha_elaboracion = fechaElab;
+      loteActivo.fecha_vencimiento = fechaVenc;
+  
+      const info = identificarProductoPorCodigo(codigo);
+  
+      if (!info) {
+        alert('Producto no registrado');
+        return;
+      }
+  
+      if (!loteActivo.items[codigo]) {
+        loteActivo.items[codigo] = {
+          codigo_barra: codigo,
+          nombre: info.nombre,
+          categoria: info.categoria,
+          cantidad: 0
+        };
+      }
+  
+      loteActivo.items[codigo].cantidad++;
+      renderTabla();
+    });
+  
+    function renderTabla() {
+      tabla.innerHTML = '';
+  
+      const items = Object.values(loteActivo.items);
+  
+      if (items.length === 0) {
+        tabla.innerHTML = `
+          <tr>
+            <td colspan="3" class="egreso-empty">Escaneá productos...</td>
+          </tr>
+        `;
+        return;
+      }
+  
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.classList.add('egreso-row');
+        tr.innerHTML = `
+          <td>${item.nombre}</td>
+          <td>${item.categoria}</td>
+          <td class="egreso-quantity">${item.cantidad}</td>
+        `;
+        tabla.appendChild(tr);
+      });
+    }
+  
+    document.getElementById('confirmar').addEventListener('click', async () => {
+      if (!loteActivo.remito || !loteActivo.fecha_elaboracion || !loteActivo.fecha_vencimiento) {
+        alert('Faltan datos del lote');
+        return;
+      }
+  
+      if (Object.keys(loteActivo.items).length === 0) {
+        alert('No hay productos escaneados');
+        return;
+      }
+  
+      const payload = {
+        numero_remito: loteActivo.remito,
+        fecha_elaboracion: loteActivo.fecha_elaboracion,
+        vencimiento: loteActivo.fecha_vencimiento,
+        productos: Object.values(loteActivo.items).map(p => ({
+          codigo_barra: p.codigo_barra,
+          cantidad: p.cantidad
+        }))
+      };
+  
+      try {
+        const res = await fetch('/ingresos/confirmar-lote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+  
+        if (!res.ok) throw new Error();
+  
+        alert('Lote ingresado correctamente');
+        location.reload();
+      } catch {
+        alert('Error al confirmar lote');
+      }
+    });
+  
+    document.getElementById('limpiar').addEventListener('click', () => {
+      if (!confirm('¿Seguro que querés limpiar el lote actual?')) return;
+      location.reload();
+    });
+  </script>
+
+</body>
+</html>

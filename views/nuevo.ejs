@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Agregar producto</title>
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <a href="/productos" class="nav-link">📦 Stock</a>
+      <a href="/movimientos" class="nav-link">📊 Movimientos</a>
+      <a href="/ingresos/ingreso-rapido" class="nav-link nav-link-primary">⚡ Ingreso rápido</a>
+      <a href="/egresos/rapido" class="nav-link nav-link-danger">🚚 Egreso rápido</a>
+      <a href="/productos/nuevo" class="nav-link nav-link-active">➕ Ingresar stock</a>
+    </nav>
+
+    <h1 class="page-title">Agregar producto</h1>
+
+    <form action="/productos/nuevo" method="POST" class="product-form">
+
+      <!-- CÓDIGO DE BARRAS -->
+      <div class="form-group">
+        <label class="form-label">Código de barras</label>
+        <input
+          type="text"
+          name="codigo_barra"
+          id="codigo_barra"
+          class="form-input"
+          autofocus
+          autocomplete="off"
+          placeholder="Escaneá el código de barras"
+        >
+      </div>
+
+      <!-- PRODUCTO -->
+      <div class="form-group">
+        <label class="form-label">Producto</label>
+        <input
+          list="productos-list"
+          name="nombre"
+          id="nombre"
+          required
+          class="form-input"
+          placeholder="Escribí para buscar el producto"
+        >
+        <datalist id="productos-list">
+          <% productos.forEach(p => { %>
+            <option value="<%= p %>"></option>
+          <% }) %>
+        </datalist>
+      </div>
+
+      <!-- CATEGORÍA -->
+      <div class="form-group">
+        <label class="form-label">Categoría</label>
+        <select
+          name="categoria"
+          id="categoria"
+          required
+          class="form-select"
+        >
+          <option value="" disabled selected>Seleccione una categoría</option>
+          <% categorias.forEach(c => { %>
+            <option value="<%= c %>"><%= c %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- CANTIDAD + UNIDAD -->
+      <div class="form-group">
+        <label class="form-label">Cantidad</label>
+
+        <div class="quantity-group">
+          <input
+            type="number"
+            name="cantidad"
+            min="1"
+            required
+            class="form-input quantity-input"
+          >
+
+          <select
+            name="unidad"
+            class="form-select unit-select"
+            required
+          >
+            <option value="U" selected>U</option>
+            <option value="GR">GR</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- FECHA ELABORACIÓN -->
+      <div class="form-group" id="grupo-elaboracion">
+        <label class="form-label">Fecha de elaboración</label>
+        <input
+          type="date"
+          name="fecha_elaboracion"
+          id="fecha_elaboracion"
+          class="form-input"
+          required
+        >
+      </div>
+
+      <!-- FECHA INGRESO (SIEMPRE) -->
+      <div class="form-group">
+        <label class="form-label">Fecha de ingreso</label>
+        <input
+          type="date"
+          name="fecha_ingreso"
+          required
+          class="form-input"
+        >
+      </div>
+
+      <!-- FECHA VENCIMIENTO -->
+      <div class="form-group" id="grupo-vencimiento">
+        <label class="form-label">Fecha de vencimiento</label>
+        <input
+          type="date"
+          name="vencimiento"
+          id="vencimiento"
+          class="form-input"
+          required
+        >
+      </div>
+
+      <!-- REMITO -->
+      <div class="form-group">
+        <label class="form-label">Número de remito</label>
+        <input type="text" name="numero_remito" required class="form-input">
+      </div>
+
+      <!-- ACCIONES -->
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">💾 Guardar producto</button>
+        <a href="/productos" class="btn-secondary">⬅ Volver al listado</a>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- JS -->
+  <script>
+    const inputCodigo = document.getElementById('codigo_barra');
+    const inputNombre = document.getElementById('nombre');
+    const selectCategoria = document.getElementById('categoria');
+
+    const grupoElaboracion = document.getElementById('grupo-elaboracion');
+    const grupoVencimiento = document.getElementById('grupo-vencimiento');
+
+    const inputElaboracion = document.getElementById('fecha_elaboracion');
+    const inputVencimiento = document.getElementById('vencimiento');
+
+    selectCategoria.addEventListener('change', () => {
+      const categoria = selectCategoria.value;
+
+      // CONGELADOS
+      if (categoria === 'Congelados') {
+        grupoElaboracion.style.display = 'none';
+        grupoVencimiento.style.display = 'none';
+
+        inputElaboracion.required = false;
+        inputVencimiento.required = false;
+
+        inputElaboracion.value = '';
+        inputVencimiento.value = '';
+        return;
+      }
+
+      // INSUMOS
+      if (categoria === 'Insumos') {
+        grupoElaboracion.style.display = 'none';
+        grupoVencimiento.style.display = '';
+
+        inputElaboracion.required = false;
+        inputVencimiento.required = false;
+
+        inputElaboracion.value = '';
+        return;
+      }
+
+      // RESTO DE CATEGORÍAS
+      grupoElaboracion.style.display = '';
+      grupoVencimiento.style.display = '';
+
+      inputElaboracion.required = true;
+      inputVencimiento.required = true;
+    });
+
+    // Scanner código de barras
+    inputCodigo.addEventListener('keydown', async (e) => {
+      if (e.key !== 'Enter') return;
+
+      e.preventDefault();
+
+      const codigo = inputCodigo.value.trim();
+      if (!codigo) return;
+
+      try {
+        const res = await fetch(`/productos/codigo/${codigo}`);
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        if (data.existe) {
+          inputNombre.value = data.producto.nombre;
+          selectCategoria.value = data.producto.categoria;
+          selectCategoria.dispatchEvent(new Event('change'));
+        }
+      } catch (err) {
+        console.error('Error al buscar por código:', err);
+      }
+    });
+  </script>
+
+</body>
+</html>

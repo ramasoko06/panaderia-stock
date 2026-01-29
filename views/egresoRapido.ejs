@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Egreso rápido</title>
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <div class="container egreso-rapido">
+
+    <!-- NAVBAR (MISMO QUE INGRESO / LISTADO) -->
+    <nav class="navbar">
+      <a href="/productos" class="nav-link">📦 Stock</a>
+      <a href="/movimientos" class="nav-link">📊 Movimientos</a>
+
+      <a href="/ingresos/ingreso-rapido" class="nav-link nav-link-primary">
+        ⚡ Ingreso rápido
+      </a>
+
+      <a href="/egresos/rapido" class="nav-link nav-link-danger">
+        🚚 Egreso rápido
+      </a>
+
+      <a href="/productos/nuevo" class="nav-link">
+        ➕ Ingresar stock
+      </a>
+    </nav>
+
+    <h1 class="page-title">Egreso rápido de productos</h1>
+
+    <!-- ==========================
+         DATOS
+    ========================== -->
+    <div class="egreso-card">
+      <label class="form-label" for="motivo">Motivo del retiro</label>
+      <select id="motivo" class="egreso-select">
+        <option value="">Seleccionar motivo</option>
+        <option value="decomiso">Decomiso</option>
+        <option value="consumo_personal">Consumo del personal</option>
+        <option value="muestra_gratis">Muestra gratis</option>
+        <option value="no_apto_venta">No apto venta</option>
+        <option value="vencido">Vencido</option>
+        <option value="moho">Moho</option>
+        <option value="fecha_corta">Fecha corta</option>
+        <option value="conversion">Conversión</option>
+      </select>
+    </div>
+
+    <!-- ==========================
+         SCANNER
+    ========================== -->
+    <input
+      type="text"
+      id="scanner"
+      class="egreso-scanner"
+      autocomplete="off"
+    />
+
+    <!-- ==========================
+         TABLA
+    ========================== -->
+    <div class="egreso-card">
+      <h3 class="egreso-subtitle">Productos a retirar</h3>
+
+      <table class="egreso-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Cantidad</th>
+          </tr>
+        </thead>
+        <tbody id="tablaProductos">
+          <tr>
+            <td colspan="3" class="egreso-empty">
+              Escaneá productos…
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==========================
+         ACCIONES
+    ========================== -->
+    <div class="egreso-actions">
+      <button id="confirmar" class="btn btn-egreso">
+        Confirmar egreso
+      </button>
+
+      <button id="limpiar" class="btn btn-secondary">
+        Limpiar
+      </button>
+    </div>
+
+  </div>
+
+<script>
+  const egresoActivo = {
+    motivo: null,
+    items: {}
+  };
+
+  const tabla = document.getElementById('tablaProductos');
+  const motivoSelect = document.getElementById('motivo');
+
+  let bufferScanner = '';
+  let scannerTimeout = null;
+
+  // ==========================
+  // MOTIVO
+  // ==========================
+  motivoSelect.addEventListener('change', () => {
+    egresoActivo.motivo = motivoSelect.value;
+  });
+
+  // ==========================
+  // ESCUCHAR SCANNER GLOBAL
+  // ==========================
+  document.addEventListener('keydown', async (e) => {
+    if (!egresoActivo.motivo) return;
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      const codigo = bufferScanner.trim();
+      bufferScanner = '';
+
+      if (!codigo) return;
+
+      if (egresoActivo.items[codigo]) {
+        egresoActivo.items[codigo].cantidad++;
+        renderTabla();
+        return;
+      }
+
+      try {
+        const res = await fetch(`/productos/codigo/${codigo}`);
+        if (!res.ok) {
+          alert(`Producto no encontrado (${codigo})`);
+          return;
+        }
+
+        const data = await res.json();
+
+        egresoActivo.items[codigo] = {
+          producto_id: data.producto.id,
+          nombre: data.producto.nombre,
+          categoria: data.producto.categoria,
+          cantidad: 1
+        };
+
+        renderTabla();
+
+      } catch (err) {
+        console.error(err);
+        alert('Error al leer código');
+      }
+      return;
+    }
+
+    if (e.key.length === 1) {
+      bufferScanner += e.key;
+      clearTimeout(scannerTimeout);
+      scannerTimeout = setTimeout(() => {
+        bufferScanner = '';
+      }, 100);
+    }
+  });
+
+  // ==========================
+  // RENDER TABLA
+  // ==========================
+  function renderTabla() {
+    tabla.innerHTML = '';
+
+    const keys = Object.keys(egresoActivo.items);
+
+    if (keys.length === 0) {
+      tabla.innerHTML = `
+        <tr>
+          <td colspan="3" class="egreso-empty">
+            Escaneá productos…
+          </td>
+        </tr>`;
+      return;
+    }
+
+    keys.forEach(k => {
+      const item = egresoActivo.items[k];
+      tabla.innerHTML += `
+        <tr class="egreso-row">
+          <td>${item.nombre}</td>
+          <td>${item.categoria}</td>
+          <td class="egreso-quantity">${item.cantidad}</td>
+        </tr>
+      `;
+    });
+  }
+
+  // ==========================
+  // CONFIRMAR
+  // ==========================
+  document.getElementById('confirmar').addEventListener('click', async () => {
+    if (!egresoActivo.motivo) {
+      alert('Falta el motivo');
+      return;
+    }
+
+    if (Object.keys(egresoActivo.items).length === 0) {
+      alert('No hay productos');
+      return;
+    }
+
+    try {
+      const res = await fetch('/egresos/confirmar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(egresoActivo)
+      });
+
+      if (!res.ok) throw new Error();
+
+      alert('Egreso registrado correctamente');
+      location.reload();
+
+    } catch {
+      alert('Error al confirmar egreso');
+    }
+  });
+
+  document.getElementById('limpiar').addEventListener('click', () => {
+    if (confirm('¿Limpiar egreso?')) location.reload();
+  });
+</script>
+
+</body>
+</html>

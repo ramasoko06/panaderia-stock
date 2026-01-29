@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Stock</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <a href="/productos" class="nav-link">📦 Stock</a>
+      <a href="/movimientos" class="nav-link">📊 Movimientos</a>
+
+      <a href="/ingresos/ingreso-rapido" class="nav-link nav-link-primary">
+        ⚡ Ingreso rápido
+      </a>
+
+      <a href="/egresos/rapido" class="nav-link nav-link-danger">
+        🚚 Egreso rápido
+      </a>
+
+      <a href="/productos/nuevo" class="nav-link">
+        ➕ Ingresar stock
+      </a>
+    </nav>
+
+    <!-- TÍTULO -->
+    <h1 class="page-title">Stock actual</h1>
+
+    <!-- BUSCADOR -->
+    <form method="GET" action="/productos" class="search-bar">
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+
+        <input
+          type="text"
+          name="q"
+          placeholder="Buscar por nombre o categoría..."
+          value="<%= busqueda %>"
+          class="search-input"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-search">
+        Buscar
+      </button>
+
+      <% if (busqueda) { %>
+        <a href="/productos" class="btn btn-clear">
+          Limpiar
+        </a>
+      <% } %>
+    </form>
+
+    <% if (busqueda) { %>
+      <p class="search-info">
+        Mostrando resultados para:
+        <strong><%= busqueda %></strong>
+      </p>
+    <% } %>
+
+    <!-- TABLA -->
+    <table class="stock-table">
+
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Stock total</th>
+          <th>Stock mínimo</th> <!-- ✅ NUEVA COLUMNA -->
+          <th>Días a vencer</th>
+          <th>Fecha corta</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (productos.length === 0) { %>
+          <tr>
+            <td colspan="6" class="empty-state">
+              No se encontraron productos
+            </td>
+          </tr>
+        <% } else { %>
+          <% productos.forEach(p => { %>
+
+            <%
+              let expiryClass = 'expiry-ok';
+
+              if (p.diasAVencer !== null) {
+                if (p.diasAVencer <= 2) expiryClass = 'expiry-danger';
+                else if (p.diasAVencer <= 7) expiryClass = 'expiry-warning';
+              }
+
+              // 🔥 CLASE DE STOCK SEGÚN STOCK MÍNIMO
+              const limite = p.stock_minimo ?? 0;
+              const stockClass = p.stock_total <= limite
+                ? 'stock-low'
+                : 'stock-normal';
+            %>
+
+            <tr class="stock-row <%= stockClass %>">
+
+              <td>
+                <a
+                  href="/productos/<%= encodeURIComponent(p.nombre) %>"
+                  class="product-link"
+                >
+                  <%= p.nombre %>
+                </a>
+              </td>
+
+              <td class="product-category">
+                <%= p.categoria %>
+              </td>
+
+              <!-- STOCK TOTAL -->
+              <td class="stock-quantity">
+                <%= p.stock_total %> <%= p.unidad %>
+              </td>
+
+              <!-- STOCK MÍNIMO -->
+              <td class="stock-minimo">
+                <%= p.stock_minimo ?? 0 %> <%= p.unidad %>
+              </td>
+
+              <!-- DÍAS A VENCER -->
+              <td class="stock-expiry <%= expiryClass %>">
+                <% if (p.diasAVencer !== null) { %>
+                  <%= p.diasAVencer %> días
+                <% } else { %>
+                  —
+                <% } %>
+              </td>
+
+              <!-- FECHA CORTA -->
+              <td class="stock-flag <%= p.fecha_corta ? 'fecha-corta' : 'fecha-ok' %>">
+                <%= p.fecha_corta ? 'Sí' : 'No' %>
+              </td>
+
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+
+    </table>
+
+  </div>
+
+</body>
+</html>

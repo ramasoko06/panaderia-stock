@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Historial de movimientos</title>
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <a href="/productos" class="nav-link">📦 Stock</a>
+
+      <a href="/movimientos" class="nav-link nav-link-active">
+        📊 Movimientos
+      </a>
+
+      <a href="/ingresos/ingreso-rapido" class="nav-link nav-link-primary">
+        ⚡ Ingreso rápido
+      </a>
+
+      <a href="/egresos/rapido" class="nav-link nav-link-danger">
+        🚚 Egreso rápido
+      </a>
+
+      <a href="/productos/nuevo" class="nav-link">
+        ➕ Ingresar stock
+      </a>
+    </nav>
+
+    <!-- TÍTULO -->
+    <h1 class="page-title">Historial de movimientos</h1>
+
+    <!-- ==========================
+         FILTRO POR TIPO
+    ========================== -->
+    <div class="type-filters">
+
+      <a
+        href="/movimientos?<%= new URLSearchParams({
+          ...filtros,
+          tipo: 'ingreso'
+        }).toString() %>"
+        class="btn btn-sm <%= filtros?.tipo === 'ingreso' ? 'btn-primary' : 'btn-outline' %>"
+      >
+        ➕ Ingresos
+      </a>
+
+      <a
+        href="/movimientos?<%= new URLSearchParams({
+          ...filtros,
+          tipo: 'egreso'
+        }).toString() %>"
+        class="btn btn-sm <%= filtros?.tipo === 'egreso' ? 'btn-danger' : 'btn-outline' %>"
+      >
+        ➖ Egresos
+      </a>
+
+    </div>
+
+    <!-- ==========================
+         FILTROS
+    ========================== -->
+    <form method="GET" action="/movimientos" class="filters-bar">
+
+      <input type="hidden" name="tipo" value="<%= filtros?.tipo || '' %>">
+
+      <input type="text" name="producto" class="filter-input" placeholder="Producto" value="<%= filtros?.producto || '' %>">
+      <input type="text" name="categoria" class="filter-input" placeholder="Categoría" value="<%= filtros?.categoria || '' %>">
+      <input type="text" name="motivo" class="filter-input" placeholder="Motivo" value="<%= filtros?.motivo || '' %>">
+
+      <input type="date" name="fecha_desde" class="filter-input filter-date" value="<%= filtros?.fecha_desde || '' %>">
+      <input type="date" name="fecha_hasta" class="filter-input filter-date" value="<%= filtros?.fecha_hasta || '' %>">
+
+      <button type="submit" class="btn btn-primary filter-btn">Filtrar</button>
+      <a href="/movimientos" class="btn btn-clear filter-btn">Limpiar</a>
+
+    </form>
+
+    <!-- ==========================
+         TABLA
+    ========================== -->
+    <table class="movements-table">
+
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Tipo</th>
+          <th>Cantidad</th>
+          <th>Motivo</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (movimientos.length === 0) { %>
+          <tr>
+            <td colspan="6" class="empty-state">
+              No hay movimientos registrados
+            </td>
+          </tr>
+        <% } else { %>
+          <% movimientos.forEach(m => { %>
+            <tr class="movement-row movement-<%= m.tipo %>">
+
+              <td class="movement-date">
+                <%= new Date(m.fecha).toLocaleDateString('es-AR') %>
+              </td>
+
+              <td class="movement-product">
+                <%= m.nombre %>
+              </td>
+
+              <td class="movement-category">
+                <%= m.categoria %>
+              </td>
+
+              <td class="movement-type">
+                <span class="badge badge-<%= m.tipo %>">
+                  <%= m.tipo === 'ingreso' ? 'Ingreso' : 'Egreso' %>
+                </span>
+              </td>
+
+              <td class="movement-quantity">
+                <span class="qty qty-<%= m.tipo %>">
+                  <%= m.tipo === 'ingreso' ? '+' : '-' %>
+                  <%= m.cantidad %>
+                  <small class="qty-unit">
+                    <%= m.unidad %>
+                  </small>
+                </span>
+              </td>
+
+              <!-- MOTIVO + BOTÓN COMENTARIO -->
+              <td class="movement-reason">
+
+                <% if (m.tipo === 'egreso' && m.motivo) { %>
+
+                  <span>
+                    <%= m.motivo.replaceAll('_', ' ') %>
+                  </span>
+
+                  <% if (m.comentario) { %>
+                    <details>
+                      <summary title="Ver comentario" style="cursor:pointer;">💬</summary>
+                      <div>
+                        <%= m.comentario %>
+                      </div>
+                    </details>
+                  <% } %>
+
+                <% } else { %>
+                  —
+                <% } %>
+
+              </td>
+
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+
+    </table>
+
+    <div class="actions">
+      <a href="/productos" class="btn-secondary">⬅ Volver al listado</a>
+    </div>
+
+  </div>
+
+</body>
+</html>
