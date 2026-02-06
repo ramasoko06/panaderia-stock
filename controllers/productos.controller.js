@@ -357,7 +357,7 @@ module.exports = {
 
       await Producto.actualizarStockMinimoPorNombre(nombre, nuevoMinimo);
 
-      res.redirect(`/productos/${nombre}`);
+      res.redirect(`/productos/${nombre}?egreso=ok`);
     } catch (error) {
       console.error('Error al actualizar stock mínimo:', error);
       res.status(500).send('Error al actualizar stock mínimo');

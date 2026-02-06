@@ -4,8 +4,37 @@
   <meta charset="UTF-8">
   <title>Detalle de <%= nombre %></title>
   <link rel="stylesheet" href="/css/styles.css">
+
+  <!-- NUEVO: estilos del popup -->
+  <style>
+    .toast-egreso {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #16a34a;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 9999;
+    }
+
+    .toast-egreso.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
 <body>
+
+  <!-- NUEVO: POPUP -->
+  <div id="toast-egreso" class="toast-egreso">
+    ✅ Egreso registrado correctamente
+  </div>
 
   <div class="container">
 
@@ -32,51 +61,46 @@
       Detalle: <span class="product-name"><%= nombre %></span>
     </h1>
 
-    <!-- ==========================
-     STOCK MÍNIMO
-========================== -->
-<div class="stock-min-card">
+    <!-- STOCK MÍNIMO -->
+    <div class="stock-min-card">
+      <div class="stock-min-header">
+        <span class="stock-min-icon">🔴</span>
+        <h2 class="stock-min-title">Stock mínimo</h2>
+      </div>
 
-  <div class="stock-min-header">
-    <span class="stock-min-icon">🔴</span>
-    <h2 class="stock-min-title">Stock mínimo</h2>
-  </div>
-
-  <form
-    action="/productos/<%= nombre %>/limite"
-    method="POST"
-    class="stock-min-form"
-  >
-    <div class="stock-min-field">
-      <label class="stock-min-label">
-        Cantidad mínima permitida
-      </label>
-
-      <input
-        type="number"
-        name="stock_minimo"
-        min="0"
-        value="<%= stock_minimo %>"
-        required
-        class="stock-min-input"
+      <form
+        action="/productos/<%= nombre %>/limite"
+        method="POST"
+        class="stock-min-form"
       >
+        <div class="stock-min-field">
+          <label class="stock-min-label">
+            Cantidad mínima permitida
+          </label>
+
+          <input
+            type="number"
+            name="stock_minimo"
+            min="0"
+            value="<%= stock_minimo %>"
+            required
+            class="stock-min-input"
+          >
+        </div>
+
+        <button type="submit" class="btn-secondary stock-min-btn">
+          Guardar
+        </button>
+      </form>
+
+      <p class="stock-min-help">
+        Cuando el stock total sea igual o menor a este valor, el producto se marcará
+        <strong>en rojo</strong> en el listado.
+      </p>
     </div>
-
-    <button type="submit" class="btn-secondary stock-min-btn">
-      Guardar
-    </button>
-  </form>
-
-  <p class="stock-min-help">
-    Cuando el stock total sea igual o menor a este valor, el producto se marcará
-    <strong>en rojo</strong> en el listado.
-  </p>
-
-</div>
 
     <!-- TABLA -->
     <table class="detail-table">
-
       <thead>
         <tr>
           <th>Cantidad</th>
@@ -91,7 +115,6 @@
       </thead>
 
       <tbody>
-
         <% const lotesConStock = lotes.filter(l => l.stock_actual > 0); %>
 
         <% if (lotesConStock.length === 0) { %>
@@ -104,60 +127,33 @@
 
           <% lotesConStock.forEach(l => { %>
             <tr class="detail-row <%= l.fechaCorta ? 'row-fecha-corta' : '' %>">
+              <td class="detail-stock"><%= l.stock_actual %></td>
 
-              <td class="detail-stock">
-                <%= l.stock_actual %>
-              </td>
-
-              <!-- ELABORACIÓN -->
               <td>
-                <% if (l.fecha_elaboracion) { %>
-                  <%= l.fecha_elaboracion.toISOString().split('T')[0] %>
-                <% } else { %>
-                  —
-                <% } %>
+                <%= l.fecha_elaboracion ? l.fecha_elaboracion.toISOString().split('T')[0] : '—' %>
               </td>
 
-              <!-- INGRESO -->
               <td>
                 <%= l.fecha_ingreso.toISOString().split('T')[0] %>
               </td>
 
-              <!-- VENCIMIENTO -->
               <td>
-                <% if (l.vencimiento) { %>
-                  <%= l.vencimiento.toISOString().split('T')[0] %>
-                <% } else { %>
-                  —
-                <% } %>
+                <%= l.vencimiento ? l.vencimiento.toISOString().split('T')[0] : '—' %>
               </td>
 
-              <!-- DÍAS A VENCER -->
               <td class="detail-dias <%= (l.diasRestantes !== null && l.diasRestantes <= 3) ? 'vencimiento-critico' : '' %>">
-                <% if (l.diasRestantes !== null) { %>
-                  <%= l.diasRestantes %>
-                <% } else { %>
-                  —
-                <% } %>
+                <%= l.diasRestantes !== null ? l.diasRestantes : '—' %>
               </td>
 
-              <td>
-                <%= l.numero_remito %>
-              </td>
+              <td><%= l.numero_remito %></td>
+              <td class="detail-fecha-corta"><%= l.fechaCorta ? 'SÍ' : 'NO' %></td>
 
-              <!-- FECHA CORTA -->
-              <td class="detail-fecha-corta">
-                <%= l.fechaCorta ? 'SÍ' : 'NO' %>
-              </td>
-
-              <!-- RETIRO -->
               <td class="detail-retiro">
                 <form
                   action="/productos/retirar/<%= l.id %>"
                   method="POST"
                   class="retiro-form"
                 >
-
                   <input
                     type="number"
                     name="cantidadRetirar"
@@ -187,20 +183,14 @@
                     rows="2"
                   ></textarea>
 
-                  <button type="submit" class="btn-danger">
-                    ✔
-                  </button>
-
+                  <button type="submit" class="btn-danger">✔</button>
                 </form>
               </td>
-
             </tr>
           <% }) %>
 
         <% } %>
-
       </tbody>
-
     </table>
 
     <div class="actions">
@@ -208,8 +198,21 @@
         ⬅ Volver al listado
       </a>
     </div>
-
   </div>
+
+  <!-- NUEVO: SCRIPT -->
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const toast = document.getElementById('toast-egreso');
+
+    if (params.get('egreso') === 'ok') {
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
 
 </body>
 </html>
