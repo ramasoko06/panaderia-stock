@@ -399,7 +399,7 @@ module.exports = {
 
       await Producto.descontarStock(id, retirar);
 
-      res.redirect(`/productos/${lote.nombre}`);
+      res.redirect(`/productos/${lote.nombre}?egreso=ok`);
     } catch (error) {
       console.error('Error en retirarStock:', error);
       res.status(500).send('Error al retirar stock');
