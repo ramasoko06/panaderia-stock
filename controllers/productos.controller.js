@@ -14,113 +14,127 @@ const categorias = [
 ];
 
 const productosDisponibles = [
-// ==========================
-  // BEBIDAS
-  // ==========================
-  'AGUA CON GAS SMART 500 ml',
-  'AGUA SMART 500 ml',
-  'COCA COLA 500 ml',
-  'COCA COLA ZERO 500 ml',
-  'SPRITE 500 ml',
-
-  // Kanawa
-  'KANAWA - FRUTAL',
-  'KANAWA - LIMONADA',
-  'KANAWA - MARACUYA',
-  'KANAWA - NARANJA',
-  'KANAWA - POMELADA',
-  'KANAWA - POMELO',
-  'KANAWA - REMOLACHA',
-  'KANAWA - VERDE',
-  'KANAWA - ZANAHORIA',
 
   // ==========================
-  // CAFETERIA
+  // ENVASADOS / PANADERÍA
   // ==========================
-  'AMARETTI',
-  'AZUCAR EN SOBRES (CAJA x 800 U)',
-  'CAFE LA ESMERALDA CAPSULAS',
-  'CAFE LA ESMERALDA x kg',
-  'EDULCORANTE EN SOBRES (CAJA x 400 U)',
+  'Alfajor chocolate',
+  'Alfajorcitos de maicena',
+  'Arabe',
+  'Bagel',
+  'Baguette Rústica',
+  'Bizcocho de grasa',
+  'Bollito salvado',
+  'Budín chips chocolate',
+  'Budín frutos secos',
+  'Budín marmolado',
+  'Budín vainilla',
+  'Budín vainilla c/ dulce de leche',
+  'Ciabatta',
+  'Cookies',
+  'Figaza',
+  'Figazas',
+  'Focaccia',
+  'Hamburguesa blanca',
+  'Hamburguesa brioche',
+  'Hamburguesa de papa',
+  'Pan andino',
+  'Pan de molde blanco',
+  'Pan de molde centeno',
+  'Pan de molde multicereal',
+  'Palmeritas paquete',
+  'Pancho chico',
+  'Pancho grande',
+  'Pasta frola',
+  'Pebete',
+  'Pepas',
+  'Pizzeta tomate',
+  'Prepizza cebolla',
+  'Prepizza tomate',
+  'Pan rallado',
+  'Pan saborizado jamón',
+  'Pan saborizado queso',
+  'Sandwich J&Q x 12',
+  'Sandwich J&Q x 6 blanco',
+  'Sandwich J&Q x 6 salvado',
+  'Sandwich surtidos x 12',
+  'Slider brioche',
 
   // ==========================
-  // ENVASADOS DULCES
+  // TORTAS / PASTELERÍA
   // ==========================
-  'ALFAJOR DE CHOCOLATE',
-  'ALFAJORCITOS DE MAICENA',
-  'BOCADITO DDL',
-  'BUDIN MARMOLADO',
-  'BUDIN VAINILLA c/ CHIPS CHOCOLATE',
-  'CIABATTA ENVASADA',
-  'COOKIES',
-  'DULCE DE LECHE VACALIN CHICO',
-  'PEPAS x Bandejita (Envasadas)',
-  'PUDDING MANZANA (Plant Based)',
-  'PUDDING FRUTOS SECOS',
-  'PUDDING VAINILLA C/D.LECHE',
+  'Tarta bombón',
+  'Tarta coco',
+  'Tarta lemon pie',
+  'Tarta manzana',
+  'Torta húmeda de chocolate',
+  'Torta matera de chocolate',
+  'Torta matera de limón',
 
   // ==========================
-  // ENVASADOS SALADOS
+  // PANADERÍA FRESCA
   // ==========================
-  'FIGAZA DE MANTECA FDP (Envasadas)',
-  'FOCACCIA',
-  'HAMBURGUESA BRIOCHE PAQ x 6 (Especial)',
-  'HAMBURGUESA BRIOCHE',
-  'HAMBURGUESA CLASICA',
-  'HAMBURGUESA DE PAPA',
-  'MULTICEREAL',
-  'PALMERITAS (Bandejita)',
-  'PAN ARABE',
-  'PAN BAGEL',
-  'BOLLITO SALVADO',
-  'PAN de MOLDE BLANCO',
-  'PAN de MOLDE CENTENO',
-  'PAN de MOLDE GRANOS ANDINOS',
-  'PAN PANCHO CHICO',
-  'PAN PEBETE',
-  'PIZZETAS TOMATE',
-  'PREPIZZA CEBOLLA x1',
-  'PREPIZZA TOMATE (Panificadora)',
-  'PREPIZZA TOMATE (FDP)',
-  'PREPIZZA TOMATE PAQUETE (2 Unidades)',
-  'SABORIZADO',
-  'SLIDER BRIOCHE',
-  'SUPERPANCHO',
+  'Chipá (bolsas)',
+  'Cremona',
+  'Croissant (bolsas)',
+  'Flauta / Milonga',
+  'Galleta de grasa',
+  'Medialuna de manteca (bolsa)',
+  'Medialuna de grasa (bolsa)',
+  'Mignon',
+  'Palmeritas',
+  'Pan de campo (unidades)',
+  'Pan de chocolate',
+  'Facturas surtidas',
 
   // ==========================
-  // FACTURERIA / PASTELERIA / SANDWICHERIA
+  // CAFETERÍA / INSUMOS
   // ==========================
-  'CROISSANT',
-  'PAN DE CAMPO REDONDO',
-  'PAN DE CAMPO ZEPPELIN',
-  'TORTA NEGRA (Cajón x 120 u)',
-  'BIZCOCHOS DE GRASA',
-  'CHIPA - Chico',
-  'CHIPA GRANDE',
-  'CREMONAS',
-  'GALLETAS DE GRASA',
-  'PALMERITAS',
-  'FACTURA SURTIDA',
-  'MEDIALUNA DE GRASA',
-  'MEDIALUNA DE MANTECA',
-  'VIGILANTE DE MANTECA',
+  'Azúcar en sobres',
+  'Café La Esmeralda',
+  'Edulcorante en sobres',
 
-  'PASTA FROLA MEMBRILLO',
-  'TORTA MOUSSE',
-  'TARTA DE COCO',
-  'TORTA BOMBON',
-  'TORTA HUMEDA DE CHOCOLATE',
-  'TORTA LEMON PIE',
-  'TORTA MANZANA HUMEDA',
-  'TORTA MATERA DE CHOCOLATE',
-  'TORTA MATERA DE LIMON',
+  // ==========================
+  // SIN TACC
+  // ==========================
+  'Alfajor de maicena sin TACC',
+  'Brownie sin TACC',
+  'Cuadradito de limón sin TACC',
 
-  'SANDWICH DE MIGA JAMON Y QUESO x12',
-  'SANDWICH DE MIGA SURTIDOS x12',
-  'SANDWICHES DE JYQ x6',
-  'SANDWICHES SALVADO x6',
+  // ==========================
+  // INSUMOS GENERALES
+  // ==========================
+  'Azúcar impalpable',
+  'Azúcar negra',
+  'Azúcar común',
+  'Baño de chocolate',
+  'Carat Supercream',
+  'Cremy pastelera',
+  'Dulce de leche x 10 kg',
+  'Dulce de membrillo x 5 kg',
+  'Huevos',
+  'Leche larga vida',
 
-  "trapo"
+  // ==========================
+  // FIAMBRES / VERDULERÍA
+  // ==========================
+  'Jamón cocido',
+  'Jamón crudo',
+  'Queso en fetas',
+  'Tomate',
+  'Rúcula',
+
+  // ==========================
+  // BEBIDAS KANAWA
+  // ==========================
+  'Kanawa frutal',
+  'Kanawa limonada',
+  'Kanawa maracuyá',
+  'Kanawa naranja',
+  'Kanawa pomelada',
+  'Kanawa pomelo',
+  'Kanawa remolacha',
+  'Kanawa verde'
 ];
 
 // ==========================
