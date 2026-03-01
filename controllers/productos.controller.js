@@ -75,12 +75,14 @@ const productosDisponibles = [
   // PANADERÍA FRESCA
   // ==========================
   'Chipá (bolsas)',
+  'Chipá sin TAAC',
   'Cremona',
   'Croissant (bolsas)',
   'Flauta / Milonga',
   'Galleta de grasa',
   'Medialuna de manteca (bolsa)',
   'Medialuna de grasa (bolsa)',
+  'vigilante manteca',
   'Mignon',
   'Palmeritas',
   'Pan de campo (unidades)',
