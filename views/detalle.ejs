@@ -207,17 +207,31 @@
 
   <!-- NUEVO: SCRIPT -->
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const toast = document.getElementById('toast-egreso');
-
-    if (params.get('egreso') === 'ok') {
-      toast.classList.add('show');
-
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
-    }
-  </script>
+    document.addEventListener('DOMContentLoaded', function() {
+    
+      const params = new URLSearchParams(window.location.search);
+      const toast = document.getElementById('toast');
+    
+      if (!toast) return;
+    
+      if (params.get('egreso') === 'ok') {
+        toast.textContent = '✅ Egreso registrado correctamente';
+        toast.className = 'toast toast-egreso show';
+      }
+    
+      if (params.get('limite') === 'ok') {
+        toast.textContent = '🔵 Stock mínimo actualizado correctamente';
+        toast.className = 'toast toast-limite show';
+      }
+    
+      if (toast.classList.contains('show')) {
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+    
+    });
+    </script>
 
 </body>
 </html>
