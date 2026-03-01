@@ -7,12 +7,10 @@
 
   <!-- NUEVO: estilos del popup -->
   <style>
-    .toast-egreso {
+    .toast {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #16a34a;
-      color: white;
       padding: 14px 20px;
       border-radius: 8px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -21,20 +19,27 @@
       transform: translateY(-10px);
       transition: all 0.3s ease;
       z-index: 9999;
+      color: white;
     }
-
-    .toast-egreso.show {
+  
+    .toast.show {
       opacity: 1;
       transform: translateY(0);
+    }
+  
+    .toast-egreso {
+      background: #16a34a; /* verde */
+    }
+  
+    .toast-limite {
+      background: #2563eb; /* azul */
     }
   </style>
 </head>
 <body>
 
   <!-- NUEVO: POPUP -->
-  <div id="toast-egreso" class="toast-egreso">
-    ✅ Egreso registrado correctamente
-  </div>
+  <div id="toast" class="toast"></div>
 
   <div class="container">
 

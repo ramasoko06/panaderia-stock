@@ -359,64 +359,69 @@ module.exports = {
   // ==========================
   // ACTUALIZAR STOCK MÍNIMO
   // ==========================
-  actualizarStockMinimo: async (req, res) => {
-    try {
-      const { nombre } = req.params;
-      const { stock_minimo } = req.body;
 
-      const nuevoMinimo = Number(stock_minimo);
-      if (isNaN(nuevoMinimo) || nuevoMinimo < 0) {
-        return res.status(400).send('Stock mínimo inválido');
-      }
+actualizarStockMinimo: async (req, res) => {
+  try {
+    const { nombre } = req.params;
+    const { stock_minimo } = req.body;
 
-      await Producto.actualizarStockMinimoPorNombre(nombre, nuevoMinimo);
-
-      res.redirect(`/productos/${nombre}?egreso=ok`);
-    } catch (error) {
-      console.error('Error al actualizar stock mínimo:', error);
-      res.status(500).send('Error al actualizar stock mínimo');
+    const nuevoMinimo = Number(stock_minimo);
+    if (isNaN(nuevoMinimo) || nuevoMinimo < 0) {
+      return res.status(400).send('Stock mínimo inválido');
     }
-  },
 
-  // ==========================
-  // RETIRAR STOCK
-  // ==========================
-  retirarStock: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { cantidadRetirar, motivoRetiro, comentario } = req.body;
+    await Producto.actualizarStockMinimoPorNombre(nombre, nuevoMinimo);
 
-      const retirar = Number(cantidadRetirar);
-      if (isNaN(retirar) || retirar <= 0) {
-        return res.status(400).send('Cantidad inválida');
-      }
+    // ✅ AHORA USA SU PROPIO PARAM
+    res.redirect(`/productos/${nombre}?limite=ok`);
 
-      if (!motivoRetiro) {
-        return res.status(400).send('Debe indicar el motivo del retiro');
-      }
-
-      const lote = await Producto.obtenerPorId(id);
-      if (!lote) {
-        return res.status(404).send('Lote no encontrado');
-      }
-
-      if (retirar > lote.stock_actual) {
-        return res.status(400).send('No hay suficiente stock');
-      }
-
-      await Retiro.crear({
-        producto_id: lote.id,
-        cantidad: retirar,
-        motivo: motivoRetiro,
-        comentario: comentario || null
-      });
-
-      await Producto.descontarStock(id, retirar);
-
-      res.redirect(`/productos/${lote.nombre}?egreso=ok`);
-    } catch (error) {
-      console.error('Error en retirarStock:', error);
-      res.status(500).send('Error al retirar stock');
-    }
+  } catch (error) {
+    console.error('Error al actualizar stock mínimo:', error);
+    res.status(500).send('Error al actualizar stock mínimo');
   }
+},
+
+  // ==========================
+// RETIRAR STOCK
+// ==========================
+retirarStock: async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { cantidadRetirar, motivoRetiro, comentario } = req.body;
+
+    const retirar = Number(cantidadRetirar);
+    if (isNaN(retirar) || retirar <= 0) {
+      return res.status(400).send('Cantidad inválida');
+    }
+
+    if (!motivoRetiro) {
+      return res.status(400).send('Debe indicar el motivo del retiro');
+    }
+
+    const lote = await Producto.obtenerPorId(id);
+    if (!lote) {
+      return res.status(404).send('Lote no encontrado');
+    }
+
+    if (retirar > lote.stock_actual) {
+      return res.status(400).send('No hay suficiente stock');
+    }
+
+    await Retiro.crear({
+      producto_id: lote.id,
+      cantidad: retirar,
+      motivo: motivoRetiro,
+      comentario: comentario || null
+    });
+
+    await Producto.descontarStock(id, retirar);
+
+    // ✅ ESTE SIGUE IGUAL
+    res.redirect(`/productos/${lote.nombre}?egreso=ok`);
+
+  } catch (error) {
+    console.error('Error en retirarStock:', error);
+    res.status(500).send('Error al retirar stock');
+  }
+}
 };
