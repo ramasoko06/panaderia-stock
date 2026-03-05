@@ -95,6 +95,16 @@ const productosDisponibles = [
   'Azúcar en sobres',
   'Café La Esmeralda',
   'Edulcorante en sobres',
+  'Te negro',
+  'Te verde',
+  'Te variedades',
+  'Cacao',
+  'Coca cola',
+  'Coca cola zero',
+  'Sprite',
+  'Sprite zero',
+  'Agua sin gas',
+  'Agua con gas',
 
   // ==========================
   // SIN TACC
