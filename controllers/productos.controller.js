@@ -125,7 +125,9 @@ const productosDisponibles = [
   'Dulce de leche x 10 kg',
   'Dulce de membrillo x 5 kg',
   'Huevos',
-  'Leche larga vida',
+  'Leche Entera',
+  'Leche descremada',
+  'Leche deslactosada',
 
   // ==========================
   // FIAMBRES / VERDULERÍA
