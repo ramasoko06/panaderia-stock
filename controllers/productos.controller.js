@@ -128,6 +128,7 @@ const productosDisponibles = [
   'Leche Entera',
   'Leche descremada',
   'Leche deslactosada',
+  'Servilletas',
 
   // ==========================
   // FIAMBRES / VERDULERÍA
@@ -148,7 +149,15 @@ const productosDisponibles = [
   'Kanawa pomelada',
   'Kanawa pomelo',
   'Kanawa remolacha',
-  'Kanawa verde'
+  'Kanawa verde',
+  'Kanawa frutal bidón',
+  'Kanawa limonada bidón',
+  'Kanawa maracuyá bidón',
+  'Kanawa naranja bidón',
+  'Kanawa pomelada bidón',
+  'Kanawa pomelo bidón',
+  'Kanawa remolacha bidón',
+  'Kanawa verde bidón'
 ];
 
 // ==========================
